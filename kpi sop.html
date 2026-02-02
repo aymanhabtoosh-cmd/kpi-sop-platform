@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KPI / SOP Builder (Beginner Friendly)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.4; }
+    .wrap { max-width: 1000px; margin: 0 auto; }
+    .top { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; margin-top: 14px; }
+    label { display:block; font-weight: 600; margin-top: 10px; }
+    input, select, textarea, button {
+      width: 100%; padding: 10px; margin-top: 6px;
+      border-radius: 8px; border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 800px){ .grid { grid-template-columns: 1fr; } }
+    .modeBtn {
+      padding: 10px 14px; border-radius: 10px; border: 1px solid #bbb;
+      background: #f6f6f6; cursor: pointer; width: auto;
+    }
+    .modeBtn.active { background: #111; color:#fff; border-color:#111; }
+    .actions { display:flex; gap:10px; flex-wrap: wrap; margin-top: 12px; }
+    .actions button { width:auto; cursor:pointer; }
+    pre {
+      background: #0b1020; color:#e8ecff; padding: 14px; border-radius: 10px;
+      overflow:auto; white-space: pre-wrap;
+    }
+    .hint { color:#555; font-size: 0.95em; }
+    .pill { display:inline-block; padding: 3px 8px; border-radius: 999px; background:#eee; margin-right:6px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h2 style="margin:0">KPI / SOP Builder</h2>
+    <span class="pill">Beginner-friendly</span>
+    <span class="pill">Six Sigma structured</span>
+  </div>
+
+  <div class="card">
+    <div class="top" style="justify-content: space-between;">
+      <div>
+        <div class="hint">Choose a mode. You can switch anytime.</div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button id="kpiModeBtn" class="modeBtn active" type="button">KPI Mode</button>
+        <button id="sopModeBtn" class="modeBtn" type="button">SOP Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI FORM -->
+  <div id="kpiCard" class="card">
+    <h3 style="margin-top:0">KPI Builder</h3>
+    <div class="grid">
+      <div>
+        <label>What do you want to improve? (simple words)</label>
+        <input id="kpiFocus" placeholder="e.g., delivery time, customer complaints, attendance" />
+
+        <label>Where / Department</label>
+        <input id="kpiWhere" placeholder="e.g., Warehouse, HR, School Admin, Branch A" />
+
+        <label>How will you measure it? (unit)</label>
+        <input id="kpiUnit" placeholder="e.g., minutes, %, count, JOD" />
+
+        <label>Measurement type</label>
+        <select id="kpiType">
+          <option value="lower_is_better">Lower is better (time, defects, cost)</option>
+          <option value="higher_is_better">Higher is better (success rate, satisfaction)</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Target (number)</label>
+        <input id="kpiTarget" type="number" placeholder="e.g., 30" />
+
+        <label>How often?</label>
+        <select id="kpiFreq">
+          <option>Daily</option>
+          <option>Weekly</option>
+          <option>Monthly</option>
+          <option>Quarterly</option>
+        </select>
+
+        <label>Data source</label>
+        <input id="kpiSource" placeholder="e.g., ERP report, Excel log, ticket system" />
+
+        <label>Owner</label>
+        <input id="kpiOwner" placeholder="e.g., Operations Manager" />
+      </div>
+    </div>
+
+    <label>Extra words (optional) — context, constraints, customer expectations</label>
+    <textarea id="kpiNotes" placeholder="e.g., customers complain when delivery is late; peak time is 3–6pm"></textarea>
+
+    <div class="actions">
+      <button type="button" onclick="generateKPI()">Generate KPI</button>
+      <button type="button" onclick="copyOutput()">Copy Output</button>
+      <button type="button" onclick="downloadTxt()">Download .txt</button>
+    </div>
+  </div>
+
+  <!-- SOP FORM -->
+  <div id="sopCard" class="card" style="display:none;">
+    <h3 style="margin-top:0">SOP Builder</h3>
+    <div class="grid">
+      <div>
+        <label>Process name</label>
+        <input id="sopName" placeholder="e.g., Receiving shipments, Student registration" />
+
+        <label>Goal</label>
+        <input id="sopGoal" placeholder="e.g., Receive shipments accurately and on time" />
+
+        <label>Scope (where does it start/end?)</label>
+        <input id="sopScope" placeholder="e.g., From supplier arrival to items stored in inventory" />
+      </div>
+
+      <div>
+        <label>Who performs it? (roles)</label>
+        <input id="sopRoles" placeholder="e.g., Storekeeper, Supervisor, QA" />
+
+        <label>Inputs / Tools</label>
+        <input id="sopInputs" placeholder="e.g., PO, scanner, checklist, system" />
+
+        <label>Records (what to save?)</label>
+        <input id="sopRecords" placeholder="e.g., Receiving log, signed checklist" />
+      </div>
+    </div>
+
+    <label>Rough steps (keywords are fine — one per line)</label>
+    <textarea id="sopSteps" placeholder="e.g.,
+Check delivery note
+Count items
+Inspect damage
+Record in system
+Label and store"></textarea>
+
+    <label>Risks / Quality checks (optional)</label>
+    <textarea id="sopChecks" placeholder="e.g., verify PO matches delivery; damaged items quarantine"></textarea>
+
+    <div class="actions">
+      <button type="button" onclick="generateSOP()">Generate SOP</button>
+      <button type="button" onclick="copyOutput()">Copy Output</button>
+      <button type="button" onclick="downloadTxt()">Download .txt</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">Generated Output</h3>
+    <pre id="output">Fill the form and click Generate.</pre>
+  </div>
+</div>
+
+<script>
+  const kpiModeBtn = document.getElementById("kpiModeBtn");
+  const sopModeBtn = document.getElementById("sopModeBtn");
+  const kpiCard = document.getElementById("kpiCard");
+  const sopCard = document.getElementById("sopCard");
+  const output = document.getElementById("output");
+
+  kpiModeBtn.addEventListener("click", () => setMode("kpi"));
+  sopModeBtn.addEventListener("click", () => setMode("sop"));
+
+  function setMode(mode){
+    const isKpi = mode === "kpi";
+    kpiCard.style.display = isKpi ? "block" : "none";
+    sopCard.style.display = isKpi ? "none" : "block";
+    kpiModeBtn.classList.toggle("active", isKpi);
+    sopModeBtn.classList.toggle("active", !isKpi);
+  }
+
+  function titleCase(s){
+    return (s || "").trim().replace(/\s+/g," ").toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  // Simple Six Sigma-ish helper: guess CTQ + defect definition
+  function ctqSuggestion(focus, type){
+    const f = (focus || "").toLowerCase();
+    if (f.includes("time") || f.includes("delay") || f.includes("cycle")) {
+      return {
+        ctq: "Speed / Lead Time",
+        defect: "A case that exceeds the allowed time threshold"
+      };
+    }
+    if (f.includes("complaint") || f.includes("error") || f.includes("defect")) {
+      return {
+        ctq: "Quality (Right First Time)",
+        defect: "An error/defect recorded in the process"
+      };
+    }
+    if (f.includes("cost") || f.includes("expense")) {
+      return {
+        ctq: "Cost Efficiency",
+        defect: "Spending above the planned limit"
+      };
+    }
+    if (f.includes("attendance") || f.includes("presence")) {
+      return {
+        ctq: "Reliability / Compliance",
+        defect: "Missing required attendance or late attendance"
+      };
+    }
+    return {
+      ctq: type === "lower_is_better" ? "Reduce Variation / Waste" : "Improve Success Rate",
+      defect: "A case that fails the defined acceptance criteria"
+    };
+  }
+
+  function ragThresholds(target, type){
+    // Basic thresholds: you can adjust later
+    const t = Number(target);
+    if (!isFinite(t) || t === 0) return { green:"-", amber:"-", red:"-" };
+
+    if (type === "lower_is_better"){
+      // Green <= target, Amber <= target*1.1, Red > target*1.1
+      const amber = (t * 1.10);
+      return {
+        green: `<= ${t}`,
+        amber: `> ${t} and <= ${amber.toFixed(2)}`,
+        red: `> ${amber.toFixed(2)}`
+      };
+    } else {
+      // Higher is better: Green >= target, Amber >= target*0.9, Red < target*0.9
+      const amber = (t * 0.90);
+      return {
+        green: `>= ${t}`,
+        amber: `< ${t} and >= ${amber.toFixed(2)}`,
+        red: `< ${amber.toFixed(2)}`
+      };
+    }
+  }
+
+  function generateKPI(){
+    const focus = document.getElementById("kpiFocus").value;
+    const where = document.getElementById("kpiWhere").value;
+    const unit = document.getElementById("kpiUnit").value;
+    const type = document.getElementById("kpiType").value;
+    const target = document.getElementById("kpiTarget").value;
+    const freq = document.getElementById("kpiFreq").value;
+    const source = document.getElementById("kpiSource").value;
+    const owner = document.getElementById("kpiOwner").value;
+    const notes = document.getElementById("kpiNotes").value;
+
+    const name = titleCase(focus || "KPI");
+    const c = ctqSuggestion(focus, type);
+    const rag = ragThresholds(target, type);
+
+    // Choose a simple formula based on type and unit
+    const formula = type === "lower_is_better"
+      ? `Average ${focus || "value"} = (Sum of measured values) / (Number of cases)`
+      : `${focus || "Success Rate"} % = (Successful cases / Total cases) * 100`;
+
+    const definition = `
+KPI NAME:
+- ${name} (${where || "Area/Department"})
+
+PURPOSE:
+- Track and improve: ${focus || "the selected focus area"}
+
+CTQ (Critical to Quality):
+- ${c.ctq}
+
+DEFINITION / FORMULA:
+- ${formula}
+
+UNIT:
+- ${unit || "Define unit (minutes / % / count / etc.)"}
+
+DATA SOURCE:
+- ${source || "Define source (system report / log / etc.)"}
+
+FREQUENCY:
+- ${freq}
+
+OWNER:
+- ${owner || "Assign a responsible role"}
+
+TARGET:
+- ${target || "Set a numeric target"} ${unit || ""}
+
+RAG THRESHOLDS (Traffic Light):
+- Green: ${rag.green} ${unit || ""}
+- Amber: ${rag.amber} ${unit || ""}
+- Red: ${rag.red} ${unit || ""}
+
+DEFECT DEFINITION (Six Sigma):
+- ${c.defect}
+
+NOTES / CONTEXT:
+- ${notes ? notes.trim() : "—"}
+`.trim();
+
+    output.textContent = definition;
+  }
+
+  function generateSOP(){
+    const name = document.getElementById("sopName").value;
+    const goal = document.getElementById("sopGoal").value;
+    const scope = document.getElementById("sopScope").value;
+    const roles = document.getElementById("sopRoles").value;
+    const inputs = document.getElementById("sopInputs").value;
+    const records = document.getElementById("sopRecords").value;
+    const stepsRaw = document.getElementById("sopSteps").value;
+    const checks = document.getElementById("sopChecks").value;
+
+    const steps = (stepsRaw || "")
+      .split("\n")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const numberedSteps = steps.length
+      ? steps.map((s,i)=> `${i+1}. ${s}`).join("\n")
+      : "1. (Add steps — one per line)";
+
+    const sop = `
+SOP TITLE:
+- ${titleCase(name || "Process SOP")}
+
+DOCUMENT INFO:
+- SOP ID: SOP-${Date.now().toString().slice(-6)}
+- Version: 1.0
+- Effective Date: ${new Date().toISOString().slice(0,10)}
+
+PURPOSE (Goal):
+- ${goal || "Define why this SOP exists"}
+
+SCOPE:
+- ${scope || "Define start/end and what is included/excluded"}
+
+ROLES & RESPONSIBILITIES:
+- ${roles || "List roles (who does what)"}
+
+INPUTS / TOOLS:
+- ${inputs || "List inputs, tools, systems"}
+
+PROCEDURE (Steps):
+${numberedSteps}
+
+QUALITY CHECKS / CONTROL POINTS (Six Sigma mindset):
+- ${checks ? checks.trim().replace(/\n/g, "\n- ") : "Define key checks to prevent defects"}
+
+RECORDS / FORMS:
+- ${records || "List logs, checklists, screenshots, forms to store"}
+
+REVISION HISTORY:
+- 1.0 Initial release
+`.trim();
+
+    output.textContent = sop;
+  }
+
+  function copyOutput(){
+    const text = output.textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Copied!");
+    }).catch(() => {
+      alert("Copy failed — select the text and copy manually.");
+    });
+  }
+
+  function downloadTxt(){
+    const blob = new Blob([output.textContent], {type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "generated_output.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+</script>
+</body>
+</html>
